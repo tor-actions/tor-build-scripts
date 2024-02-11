@@ -2,7 +2,12 @@
 set -eu
 
 # Download and verify dependencies
-curl --proto '=https' --tlsv1.2 -fsSL "https://zlib.net/zlib-$ZLIB_VERSION.tar.gz" -o "zlib-$ZLIB_VERSION.tar.gz"
+curl --proto '=https' --tlsv1.2 -fsSL -o "zlib-$ZLIB_VERSION.tar.gz" $(
+    curl --proto '=https' --tlsv1.2 -fsLIw '%{response_code} %{url}' -o /dev/null "https://zlib.net/zlib-$ZLIB_VERSION.tar.gz" |
+        awk '$1 == 200 { print $2 } $1 != 200 { exit 1 }' ||
+    curl --proto '=https' --tlsv1.2 -fsSLIw '%{response_code} %{url}' -o /dev/null "https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz" |
+        awk '$1 == 200 { print $2 } $1 != 200'
+)
 echo "$ZLIB_HASH  zlib-$ZLIB_VERSION.tar.gz" | shasum -a 256 -c -
 
 curl --proto '=https' --tlsv1.2 -fsSL "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" -o "openssl-$OPENSSL_VERSION.tar.gz"
