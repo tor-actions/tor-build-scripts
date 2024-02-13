@@ -1,5 +1,4 @@
-#!/bin/sh
-set -eu
+#!/bin/sh -eu
 
 echo "running build_darwin_x86_64.sh..."
 
@@ -42,6 +41,7 @@ patch -p0 < ../../patch/libevent/regress.c.patch
             LDFLAGS="-L$PWD/../openssl-$OPENSSL_VERSION/root/lib" \
             CPPFLAGS="-I$PWD/../openssl-$OPENSSL_VERSION/include" \
             --prefix="$PWD/install" \
+            --disable-openssl \
             --disable-shared \
             --enable-static \
             --disable-clock-gettime \
@@ -66,6 +66,8 @@ cd "x86_64/tor-$TOR_VERSION"
             --disable-lzma \
             --disable-manpage \
             --disable-zstd \
+            --disable-module-relay \
+            --disable-module-dirauth \
             ac_cv_func_getentropy=no \
             ac_cv_func_clock_gettime=no
 make ${jobs:+-j${jobs}} && make ${jobs:+-j${jobs}} check && make install

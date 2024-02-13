@@ -1,5 +1,4 @@
-#!/bin/sh
-set -eu
+#!/bin/sh -eu
 
 echo "running build_darwin_arm64.sh..."
 
@@ -42,6 +41,7 @@ patch -p0 < ../../patch/libevent/regress.c.patch
 	    LDFLAGS="-L$PWD/../openssl-$OPENSSL_VERSION/root/lib --target=arm64-apple-macos11" \
 	    CPPFLAGS="-I$PWD/../openssl-$OPENSSL_VERSION/include --target=arm64-apple-macos11" \
 	    --prefix="$PWD/install" \
+	    --disable-openssl \
 	    --disable-shared \
 	    --enable-static \
             --host=arm-apple-darwin \
@@ -67,6 +67,8 @@ cd "arm64/tor-$TOR_VERSION"
 	    --disable-lzma \
 	    --disable-manpage \
             --disable-zstd \
+            --disable-module-relay \
+            --disable-module-dirauth \
             --host=arm-apple-darwin \
             --disable-tool-name-check \
 	    ac_cv_func_getentropy=no \
