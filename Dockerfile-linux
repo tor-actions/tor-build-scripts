@@ -25,7 +25,12 @@ RUN \
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN \ 
-  curl --proto '=https' --tlsv1.3 -fsSL "https://zlib.net/zlib-${zlib_version}.tar.gz" -o "zlib-$zlib_version.tar.gz" && \
+  curl --proto '=https' --tlsv1.3 -fsSL -o "zlib-$zlib_version.tar.gz" $( \
+    curl --proto '=https' --tlsv1.3 -fsLIw '%{response_code} %{url}' -o /dev/null "https://zlib.net/zlib-${zlib_version}.tar.gz" | \
+      awk '$1 == 200 { print $2 } $1 != 200 { exit 1 }' || \
+    curl --proto '=https' --tlsv1.3 -fsSLIw '%{response_code} %{url}' -o /dev/null "https://zlib.net/fossils/zlib-${zlib_version}.tar.gz" | \
+      awk '$1 == 200 { print $2 } $1 != 200' \
+  ) && \
   echo "$zlib_hash  zlib-$zlib_version.tar.gz" | shasum -a 256 -c - && \
   tar -zxvf "zlib-$zlib_version.tar.gz" && \
   cd "zlib-$zlib_version" && \
