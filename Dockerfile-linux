@@ -25,7 +25,9 @@ RUN \
   build-essential \
   curl \
   ca-certificates \
+  file \
   gnupg \
+  libcap-dev \
   python-is-python3 \
   ; # end of apt-get install
 
@@ -73,8 +75,11 @@ RUN \
 
 RUN \
   cd "openssl-$openssl_version" && \
-  ./config --prefix="$PWD/root" \
-    no-shared no-dso && \
+  ./config --prefix="$PWD/root" --libdir=lib \
+    no-dso \
+    no-shared \
+    no-ssl-trace \
+    no-ui-console && \
   make ${jobs:+-j${jobs}} && \
   make test && \
   make install
@@ -86,6 +91,7 @@ RUN \
               --disable-openssl \
               --prefix="$PWD/install" \
               --disable-shared \
+              --enable-gcc-hardening \
               --enable-static \
               --with-pic && \
   ulimit -n 65536 && \
